@@ -69,13 +69,8 @@ def spectrogram(vx, vfs):
 
     stft_magnitude = []
     stft_phase = []
-    # cstft_magnitude = []
-    # cstft_phase = []
     for sample in sample_set:
-        fft = np.fft.fft(sample)
-        # fft_polar = [cmath.polar(complex_number) for complex_number in fft]
-        # cstft_magnitude += [[complex_number[0] for complex_number in fft_polar]]
-        # cstft_phase += [[complex_number[1] for complex_number in fft_polar]]
+        fft = np.fft.fft(sample)]
         stft_magnitude += [[abs(complex_number) for complex_number in fft]]
         stft_phase += [[np.angle(complex_number) for complex_number in fft]]
     plt.imshow(np.array(stft_magnitude).T.tolist(), 'gray_r', origin='lower', aspect='auto')
