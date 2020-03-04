@@ -39,8 +39,6 @@ def nmf(V, k=63):
         print('nmf loop', i)
         H = H * np.dot(W.T, V / np.dot(W, H)) / np.dot(W.T, v1)
         W = W * np.dot(V / np.dot(W, H), H.T) / np.dot(v1, H.T)
-        # H = H * np.dot(V / np.dot(H, W), np.transpose(W)) / np.dot(v1, np.transpose(W))
-        # W = W * np.dot(np.transpose(H), V / np.dot(H, W)) / np.dot(np.transpose(H), v1)
 
     return W, H
 
@@ -52,20 +50,23 @@ def istft(stft_magnitude, stft_phase):
 def main():
     music = Audio(filename=argv[2])
     vfs, vx = wavfile.read(BytesIO(music.data))
+    sample_size, k = int(argv[1]), int(argv[3])
+    start_time, stop_time = int(argv[4]) * vfs // sample_size, int(argv[5]) * vfs // sample_size
+    print(start_time, stop_time)
 
     stft_mag, stft_phase = stft(vx, vfs)
     print('stft done', stft_mag.shape)
 
-    # basis_partial, activation_partial = nmf(stft_mag[:35], 200)
-    # print('partial nmf done', basis_partial.shape, activation_partial.shape, stft_mag.shape)
+    basis_partial, activation_partial = nmf(stft_mag[:, start_time:stop_time], k)
+    print('partial nmf done', basis_partial.shape, activation_partial.shape)
 
-    basis, activation = nmf(stft_mag, stft_mag.shape[1])
-    print('main nmf done')
+    basis, activation = nmf(stft_mag, k)
+    print('main nmf done', basis.shape, activation.shape)
 
-    reconstructed = np.concatenate(istft(np.dot(basis, activation).T, stft_phase.T)).ravel().astype(vx.dtype)
+    reconstructed = np.concatenate(istft(np.dot(basis_partial, activation).T, stft_phase.T)).ravel().astype(vx.dtype)
     print('reconstruction done')
 
-    wavfile.write("reconstructed_violin.wav", vfs, reconstructed)
+    wavfile.write("reconstructed_{}.wav".format(argv[2]), vfs, reconstructed)
 
 
 if __name__ == "__main__":

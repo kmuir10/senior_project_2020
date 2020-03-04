@@ -1,5 +1,9 @@
 "# senior_project_2020" 
 
-For now, test.py doesn't do anything as its tests are outdated. main.py expects a command line argument which should be 
-the length of each window for the stft. It inputs an audio file and tries to apply nmf to the whole thing as well as the 
-first few seconds to achieve source separation. Currently this does not work.
+For now, test.py doesn't do anything as its tests are outdated.
+
+Usage: python3 main.py filename sample_size start_sample_time end_sample_time
+
+sample_size is how much time each fft should cover in the stft
+start and end sample times are the times for the specific instrument that you want to 
+try to separate
