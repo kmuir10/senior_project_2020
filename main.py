@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from math import *
 from IPython.display import Audio
 from scipy.io import wavfile
 from io import BytesIO
@@ -28,9 +27,9 @@ def stft(vx, vfs):
 
 
 def nmf(V, k=63):
-    t = V.shape[1]
-    f = V.shape[0]
-    W = np.random.randint(np.min(V), np.max(V), (f, k))
+    f, t = V.shape
+    W = np.random.uniform(np.min(V), np.max(V), (f, k))
+    print(np.min(V), np.max(V))
     H = np.ones((k, t))
     v1 = np.ones(V.shape)
     print('f = {0}, t = {1}, W: {2}, H: {3}, v1: {4}'.format(f, t, W.shape, H.shape, v1.shape))
@@ -39,6 +38,25 @@ def nmf(V, k=63):
         print('nmf loop', i)
         H = H * np.dot(W.T, V / np.dot(W, H)) / np.dot(W.T, v1)
         W = W * np.dot(V / np.dot(W, H), H.T) / np.dot(v1, H.T)
+
+    return W, H
+
+
+def nmf_supervised(V, k, W_learned):
+    t = V.shape[1]
+    f = V.shape[0]
+    rest = np.random.uniform(np.min(V), np.max(V), (f, k))
+    W = np.concatenate((W_learned, rest), axis=1)
+    print(np.min(V), np.max(V))
+    H = np.ones((k+30, t))
+    v1 = np.ones(V.shape)
+    print('f = {0}, t = {1}, W: {2}, H: {3}, v1: {4}'.format(f, t, W.shape, H.shape, v1.shape))
+
+    for i in range(0, 100):
+        print('nmf loop', i)
+        H = H * np.dot(W.T, V / np.dot(W, H)) / np.dot(W.T, v1)
+        W = W * np.dot(V / np.dot(W, H), H.T) / np.dot(v1, H.T)
+        W[:, :30] = W_learned
 
     return W, H
 
@@ -57,13 +75,13 @@ def main():
     stft_mag, stft_phase = stft(vx, vfs)
     print('stft done', stft_mag.shape)
 
-    basis_partial, activation_partial = nmf(stft_mag[:, start_time:stop_time], k)
+    basis_partial, activation_partial = nmf(stft_mag[:, start_time:stop_time], 30)
     print('partial nmf done', basis_partial.shape, activation_partial.shape)
 
-    basis, activation = nmf(stft_mag, k)
+    basis, activation = nmf_supervised(stft_mag, 60, basis_partial)
     print('main nmf done', basis.shape, activation.shape)
 
-    reconstructed = np.concatenate(istft(np.dot(basis_partial, activation).T, stft_phase.T)).ravel().astype(vx.dtype)
+    reconstructed = np.concatenate(istft(np.dot(basis[:, 30:], activation[30:]).T, stft_phase.T)).ravel().astype(vx.dtype)
     print('reconstruction done')
 
     wavfile.write("reconstructed_{}.wav".format(argv[2]), vfs, reconstructed)
