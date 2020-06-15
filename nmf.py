@@ -18,7 +18,7 @@ def stft(vx, vfs):
         print('Type: Mono')
 
     # Getting sample size, adding zero padding to last sample set so all sets are the same size
-    sample_size = int(argv[1])
+    sample_size = 8192
     vx_copy = np.pad(vx_copy, (0, sample_size - vx_copy.shape[0] % sample_size), constant_values=(0,))
     vx_copy = np.split(vx_copy, vx_copy.shape[0] // sample_size)
 
@@ -35,7 +35,8 @@ def nmf(V, k=63):
     print('f = {0}, t = {1}, W: {2}, H: {3}, v1: {4}'.format(f, t, W.shape, H.shape, v1.shape))
 
     for i in range(0, 100):
-        print('nmf loop', i)
+        if i % 10 == 0:
+            print('nmf loop', i)
         H = H * np.dot(W.T, V / np.dot(W, H)) / np.dot(W.T, v1)
         W = W * np.dot(V / np.dot(W, H), H.T) / np.dot(v1, H.T)
 
@@ -48,15 +49,15 @@ def nmf_supervised(V, k, W_learned):
     rest = np.random.uniform(np.min(V), np.max(V), (f, k))
     W = np.concatenate((W_learned, rest), axis=1)
     print(np.min(V), np.max(V))
-    H = np.ones((k+30, t))
+    H = np.ones((k+100, t))
     v1 = np.ones(V.shape)
     print('f = {0}, t = {1}, W: {2}, H: {3}, v1: {4}'.format(f, t, W.shape, H.shape, v1.shape))
 
     for i in range(0, 100):
-        print('nmf loop', i)
+        if i % 10 == 0:
+            print('nmf loop', i)
         H = H * np.dot(W.T, V / np.dot(W, H)) / np.dot(W.T, v1)
         W = W * np.dot(V / np.dot(W, H), H.T) / np.dot(v1, H.T)
-        W[:, :30] = W_learned
 
     return W, H
 

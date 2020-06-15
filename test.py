@@ -56,22 +56,33 @@ def fft_tests():
     plt.show()
 
 
-def spectrogram(vx, vfs):
-    # violin = Audio("megalovania.wav")
-    # vfs, vx = wavfile.read(BytesIO(violin.data))
-    print('start')
+# def spectrogram(vx, vfs):
+violin = Audio("instrumentals.wav")
+vfs, vx = wavfile.read(BytesIO(violin.data))
+print('start')
 
-    vx_copy = np.copy(vx)
-    vx_copy = [item for sublist in vx_copy for item in sublist]
-    sample_size = int(argv[1])
-    sample_set = [vx_copy[i*sample_size:(i+1)*sample_size] for i in range((len(vx_copy)+sample_size-1)//sample_size)]
-    sample_set[-1] = np.append(sample_set[-1], [0] * (sample_size-len(sample_set[-1])))
+vx_copy = np.copy(vx)
+vx_copy = [item for sublist in vx_copy for item in sublist]
+sample_size = int(argv[1])
+sample_set = [vx_copy[i*sample_size:(i+1)*sample_size] for i in range((len(vx_copy)+sample_size-1)//sample_size)]
+sample_set[-1] = np.append(sample_set[-1], [0] * (sample_size-len(sample_set[-1])))
 
-    stft_magnitude = []
-    stft_phase = []
-    for sample in sample_set:
-        fft = np.fft.fft(sample)]
-        stft_magnitude += [[abs(complex_number) for complex_number in fft]]
-        stft_phase += [[np.angle(complex_number) for complex_number in fft]]
-    plt.imshow(np.array(stft_magnitude).T.tolist(), 'gray_r', origin='lower', aspect='auto')
-    plt.show()
+stft_magnitude = []
+stft_phase = []
+for sample in sample_set:
+    fft = np.fft.fft(sample)
+    stft_magnitude += [[abs(complex_number) for complex_number in fft]]
+    stft_phase += [[np.angle(complex_number) for complex_number in fft]]
+plt.imshow(np.array(stft_magnitude).T.tolist(), 'gray_r', origin='lower', aspect='auto')
+plt.show()
+
+#
+# name_instrumentals = "instrumentals.wav"
+# instrumentals = Audio(filename=name_instrumentals)
+# ivfs, ivx = wavfile.read(BytesIO(instrumentals.data))
+# if ivx.ndim == 2:
+#     ivx = ivx[:, 0]
+#     print('Type: Stereo, taking one channel only')
+# else:
+#     print('Type: Mono')
+# spectrogram(ivx, ivfs)

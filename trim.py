@@ -53,5 +53,10 @@ if to_offset == "ivx":
     ivx = ivx[max_index:]
     print("trimming ivx to:", max_index)
 
+if vvx.shape[0] > ivx.shape[0]:
+    vvx = vvx[:ivx.shape[0]]
+else:
+    ivx = ivx[:vvx.shape[0]]
+
 wavfile.write("inst.wav", ivfs, ivx)
 wavfile.write("voc.wav", vvfs, vvx)
